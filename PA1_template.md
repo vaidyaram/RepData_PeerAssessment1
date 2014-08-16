@@ -10,7 +10,8 @@ In the following section, we implement the steps to download the data file and l
 
 
 
-```{r , echo = TRUE}
+
+```r
 library(plyr)
 library(ggplot2)
 library(lattice)
@@ -25,7 +26,6 @@ download.file(fileUrl,"activity.zip")
 #read the data file
 unzip("activity.zip")
 data = read.csv("activity.csv", header=TRUE,  na.strings = "NA", stringsAsFactors = FALSE)
-
 ```
 
 
@@ -41,7 +41,8 @@ a. Use **ddply** to summarize the total number of steps based on date.
 b. Use **ggplot** to draw the histogram of total number of steps taken each day.
 c. Calculate and print the mean and median total number of steps taken per day.
 
-```{r , echo = TRUE}
+
+```r
 #convert date column from character to Date class
 data$date<-as.Date(data$date)
 
@@ -52,16 +53,22 @@ stepsSummaryData<-ddply(data,"date",summarize, totalSteps = sum(steps))
 g <- ggplot(stepsSummaryData, aes(totalSteps))
 g<-g+geom_histogram()
 print(g)
+```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
+```r
 #calculate the mean and median of steps per day, ignore the NA values
 meanTotalStepsPerDay<-mean(stepsSummaryData$totalSteps,na.rm=TRUE)
 medianTotalStepsPerDay<-median(stepsSummaryData$totalSteps,na.rm=TRUE)
-
 ```
 
-The *mean of total number of steps* taken per day is **`r meanTotalStepsPerDay`**.  
-The *median of total number of steps* taken per day is **`r medianTotalStepsPerDay`**.    
+The *mean of total number of steps* taken per day is **1.0766 &times; 10<sup>4</sup>**.  
+The *median of total number of steps* taken per day is **10765**.    
 
 
 
@@ -78,7 +85,8 @@ a. Split the data based on the intervals using **split** function.
 b. Iterate through data for each interval and summarize the average steps for each interval across all days.  
 c. Use **ggplot** to create time series graph of 5 minutes intervals and average steps across all days. 
 
-```{r , echo = TRUE}
+
+```r
 #split the data set based on the 5 minute intervals for all the days
 dataByIntervals <- split(data, data$interval)
 
@@ -113,7 +121,11 @@ g<-g+geom_line(aes(interval, avgStepsAcrossAllDays), color = "blue")+
         labs(title = "Time series plot - 5 minute interval & average steps taken, averaged across all days")+
         theme(plot.title = element_text(size = rel(0.95)))
 print(g)
+```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
+```r
 # Which 5-minute interval, on average across all the days in the dataset, 
 # contains the maximum number of steps?
 
@@ -121,10 +133,9 @@ print(g)
 rowId <- which.max(intervalStepsData$avgStepsAcrossAllDays)
 #get the interval corresponding to the maximum value of average steps across all days
 interval_With_Max_Avg_Steps<-intervalStepsData[rowId,1]
-
 ```
 
-The *5 minute minute interval that has maximum number of steps* (averaged across all days) is **`r interval_With_Max_Avg_Steps`**.  
+The *5 minute minute interval that has maximum number of steps* (averaged across all days) is **835**.  
 
 
 ## Imputing missing values  
@@ -149,7 +160,8 @@ e. Summarize the data using **ddply** to get the total number of steps across ea
 f. Use **ggplot** to draw the histogram with the new data set.
 
 
-```{r , echo = TRUE}
+
+```r
 # Imputing missing values
 # Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 steps_NA_data<-data[is.na(data$steps),]
@@ -179,18 +191,24 @@ newStepsSummaryData<-ddply(data,"date",summarize, totalSteps = sum(steps))
 g <- ggplot(newStepsSummaryData, aes(totalSteps))
 g<-g+geom_histogram()
 print(g)
+```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
 
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+```r
 #Report the mean and median total number of steps taken per day
 newMeanSteps<-mean(newStepsSummaryData$totalSteps)
 newMedianSteps<-median(newStepsSummaryData$totalSteps)
-
 ```
 
-The *total number of missing values in the data set* is **`r number_NA`**.   
+The *total number of missing values in the data set* is **2304**.   
 
-The **new** *mean of total number of steps* taken per day is **`r newMeanSteps`**.    
-The **new** *median of total number of steps* taken per day is **`r newMedianSteps`**.     
+The **new** *mean of total number of steps* taken per day is **1.0766 &times; 10<sup>4</sup>**.    
+The **new** *median of total number of steps* taken per day is **1.0766 &times; 10<sup>4</sup>**.     
 
 The mean remains the same as the first part of the assignment as we are using **mean** to replace NA values.  
 The median increases by a small amount, compared to the first part, as the NAs have been replaced with mean values. The mean values used are non-negative/large and hence increases the median by small amount.
@@ -211,7 +229,8 @@ d. Use **split** function to split the data by cominations of weekday and interv
 e. Create summary data for average steps across all intervals along with weekend/weekday classification.  
 f. Use **lattice** plotting system to create panel plot time series plot of 5 minute interval and the average number of steps taken, averaged across all weekday or weekend days.  
 
-```{r , echo = TRUE}
+
+```r
 #Are there differences in activity patterns between weekdays and weekends?
 #Add a new column to get the weekday corresponding to the date
 data$weekday<-weekdays(data$date)
@@ -269,8 +288,9 @@ levels(intervalStepsWeekdayData$isWeekday) <- c("weekday","weekend")
 #create a lattice plot for the weekday 
 xyplot(Number_of_steps ~ Interval | isWeekday , data = intervalStepsWeekdayData, type = "l", layout = c(1,2),
        xlab = "Interval", ylab = "Number of steps")
-
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
 
 Yes, there is *significant* difference in the activity pattern between weekdays and weekends. In the weekends, the average number of steps (across all days) seems to be *uniform* across all 5 minutes intervals. In the weekdays, the average number of steps (across all days) seems to be *higher* in the *lower 5 minute intervals* compared to the *higher 5 minute intervals*.
